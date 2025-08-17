@@ -9,8 +9,20 @@ int initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e);
 void generate_grid(Coordinates* g, Coordinates* p, Coordinates* e);
 // This prints out the grid, along with the player and the enemy.
 
-void input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e, bool* b);
-// This validates user input, and updates the player's position.
+bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e, bool* b);
+// This validates user input, and updates the player's position or lets the player attack the enemy.
+
+int get_distance(Coordinates* g, Coordinates* p, int e_x, int e_y);
+/**
+ * This calculates the minimum numebr of steps from the player to a possible position of the enemy (e_x, e_y).
+ * Notes: This accounts for possible wrap arounds to minimize number of steps.
+ */
+
+void enemy_move(Coordinates* e, Coordinates* g, Coordinates* p);
+/**
+ * This allows the enemy to evade the player without wrapping around the borders of the grid.
+ * Restriction: Enemy has to move each turn unless they are in the same room as the player.
+ */
 
 int main() 
 {
@@ -28,7 +40,10 @@ int main()
     {
         generate_grid(&grid, &player, &enemy);
         std::cin >> input;
-        input_validation(input, &grid, &player, &enemy, &isGameOver);
+        bool isInputValid = input_validation(input, &grid, &player, &enemy, &isGameOver);
+        
+        if (isInputValid && !isGameOver)
+            enemy_move(&enemy, &grid, &player);
     }
     while (!isGameOver);
     
@@ -223,12 +238,12 @@ void generate_grid(Coordinates* g, Coordinates* p, Coordinates* e)
     return;
 };
 
-void input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e, bool* b)
+bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e, bool* b)
 {
     if (i == "exit")
     {
         *b = true;
-        return;
+        return true;
     }
 
     std::string valid_input[10] = {"north", "south", "east", "west", "attack",
@@ -311,14 +326,91 @@ void input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates
                 std::cout << "Player is not in the same room as the enemy.\n";
             }
         }
+
+        return true;
     }
 
     else
     {
         std::cout << "Invalid input." << std::endl;
-        return;
+        return false;
     }
 };
+
+int get_distance(Coordinates* g, Coordinates* p, int e_x, int e_y)
+{
+    /**
+     * Formula: Distance = deltaX + deltaY
+     *      deltaX = minimum of |p->x - e_x|         (no wrap around)
+     *                      and g->x - |p->x - e_x|  (w/ wrap around)
+     * 
+     *      deltaX = minimum of |p->y - e_y|         (no wrap around)
+     *                      and g->y - |p->y - e_y|  (w/ wrap around) 
+     */
+
+    return std::min( abs(p->x - e_x), g->x - abs(p->x - e_x) ) +
+            std::min( abs(p->y - e_y), g->y - abs(p->y - e_y) );
+}
+
+void enemy_move(Coordinates* e, Coordinates* g, Coordinates* p)
+{
+    // If they are in the same room as the player, enemy cannot move
+    if (e->x == p->x && e->y == p->y)
+    {
+        std::cout << "Enemy gets caught by the player.\n";
+        return;
+    }
+
+    // Else, we calculate the furthest position to which the enemy can move
+    int max_distance = -1, new_x, new_y;
+
+    if (e->x > 1) // move left is possible
+    {
+        max_distance = get_distance(g, p, e->x - 1, e->y);
+        new_x = e->x - 1;
+        new_y = e->y;
+    }
+
+    if (e->x < g->x) // move right is possible
+    {
+        int distance = get_distance(g, p, e->x + 1, e->y);
+
+        if (distance > max_distance)
+        {
+            max_distance = distance;
+            new_x = e->x + 1;
+            new_y = e->y;
+        }
+    }
+
+    if (e->y > 1) // move up is possible
+    {
+        int distance = get_distance(g, p, e->x, e->y - 1);
+
+        if (distance > max_distance)
+        {
+            max_distance = distance;
+            new_x = e->x;
+            new_y = e->y - 1;
+        }
+    }
+
+    if (e->y < g->y) // move down is possible
+    {
+        int distance = get_distance(g, p, e->x, e->y + 1);
+
+        if (distance > max_distance)
+        {
+            max_distance = distance;
+            new_x = e->x;
+            new_y = e->y + 1;
+        }
+    }
+
+    // update enemy position
+    e->x = new_x;
+    e->y = new_y;
+}
 
 /**
  * ideally
