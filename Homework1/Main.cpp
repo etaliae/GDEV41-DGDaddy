@@ -9,13 +9,14 @@ int initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e);
 void generate_grid(Coordinates* g, Coordinates* p, Coordinates* e);
 // This prints out the grid, along with the player and the enemy.
 
-void input_validation(std::string i, Coordinates* g, Coordinates* p);
+void input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e, bool* b);
 // This validates user input, and updates the player's position.
 
 int main() 
 {
     Coordinates grid, player, enemy;
     std::string input;
+    bool isGameOver = false;
 
     if (initialize_chars(&grid, &player, &enemy) != 0)
     {
@@ -27,9 +28,9 @@ int main()
     {
         generate_grid(&grid, &player, &enemy);
         std::cin >> input;
-        input_validation(input, &grid, &player);
+        input_validation(input, &grid, &player, &enemy, &isGameOver);
     }
-    while (input != "exit");
+    while (!isGameOver);
     
     return 0;
 }
@@ -222,15 +223,16 @@ void generate_grid(Coordinates* g, Coordinates* p, Coordinates* e)
     return;
 };
 
-void input_validation(std::string i, Coordinates* g, Coordinates* p)
+void input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e, bool* b)
 {
     if (i == "exit")
     {
+        *b = true;
         return;
     }
 
-    std::string valid_input[8] = {"north", "south", "east", "west",
-                                                        "n", "s", "e", "w"} ;
+    std::string valid_input[10] = {"north", "south", "east", "west", "attack",
+                                                        "n", "s", "e", "w", "a"} ;
 
     bool found = false;
 
@@ -239,6 +241,7 @@ void input_validation(std::string i, Coordinates* g, Coordinates* p)
         if (i == valid_input[_])
         {
             found = true;
+            break;
         }
     }
 
@@ -292,6 +295,21 @@ void input_validation(std::string i, Coordinates* g, Coordinates* p)
             }
             
             p->x = temp;
+        }
+
+        else if (i == "attack" || i == "a")
+        {
+            if (p->x == e->x && p->y == e->y)
+            {
+                std::cout << "Player has attacked the enemy!\n\n"
+                            << "YOU WIN!\n";
+
+                *b = true;
+            }
+            else
+            {
+                std::cout << "Player is not in the same room as the enemy.\n";
+            }
         }
     }
 
