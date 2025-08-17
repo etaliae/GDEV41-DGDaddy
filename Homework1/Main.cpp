@@ -9,7 +9,7 @@ int initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e);
 void generate_grid(Coordinates* g, Coordinates* p, Coordinates* e);
 // This prints out the grid, along with the player and the enemy.
 
-bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e, bool* b);
+bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e);
 // This validates user input, and updates the player's position or lets the player attack the enemy.
 
 int get_distance(Coordinates* g, Coordinates* p, int e_x, int e_y);
@@ -24,11 +24,17 @@ void enemy_move(Coordinates* e, Coordinates* g, Coordinates* p);
  * Restriction: Enemy has to move each turn unless they are in the same room as the player.
  */
 
+int dashesLeft;
+bool isDashActivated, isGameOver;
+
 int main() 
 {
     Coordinates grid, player, enemy;
     std::string input;
-    bool isGameOver = false;
+    
+    dashesLeft = 1;
+    isDashActivated = false;
+    isGameOver = false;
 
     if (initialize_chars(&grid, &player, &enemy) != 0)
     {
@@ -40,9 +46,9 @@ int main()
     {
         generate_grid(&grid, &player, &enemy);
         std::cin >> input;
-        bool isInputValid = input_validation(input, &grid, &player, &enemy, &isGameOver);
+        bool isInputValid = input_validation(input, &grid, &player, &enemy);
         
-        if (isInputValid && !isGameOver)
+        if (isInputValid && input != "dash" && input != "d" && !isGameOver)
             enemy_move(&enemy, &grid, &player);
     }
     while (!isGameOver);
@@ -238,16 +244,16 @@ void generate_grid(Coordinates* g, Coordinates* p, Coordinates* e)
     return;
 };
 
-bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e, bool* b)
+bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates* e)
 {
     if (i == "exit")
     {
-        *b = true;
+        isGameOver = true;
         return true;
     }
 
-    std::string valid_input[10] = {"north", "south", "east", "west", "attack",
-                                                        "n", "s", "e", "w", "a"} ;
+    std::string valid_input[12] = {"north", "south", "east", "west", "attack", "dash",
+                                                        "n", "s", "e", "w", "a", "d"} ;
 
     bool found = false;
 
@@ -286,6 +292,13 @@ bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates
             }
 
             p->y = temp;
+
+            if (isDashActivated)
+            {
+                isDashActivated = false;
+
+                input_validation(i, g, p, e);        
+            }
         }
 
         else if (i == "east" || i == "e" || i == "west" || i == "w")
@@ -310,6 +323,13 @@ bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates
             }
             
             p->x = temp;
+
+            if (isDashActivated)
+            {
+                isDashActivated = false;
+
+                input_validation(i, g, p, e);        
+            }
         }
 
         else if (i == "attack" || i == "a")
@@ -319,11 +339,27 @@ bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates
                 std::cout << "Player has attacked the enemy!\n\n"
                             << "YOU WIN!\n";
 
-                *b = true;
+                isGameOver = true;
             }
             else
             {
                 std::cout << "Player is not in the same room as the enemy.\n";
+            }
+        }
+
+        else if (i == "dash" || i == "d")
+        {
+            if (dashesLeft > 0)
+            {
+                dashesLeft--;
+                isDashActivated = true;
+
+                std::cout << "Player has activated the Dash ability!\n"
+                            << "Select a direction and move two rooms towards that direction.\n\n";
+            }
+            else
+            {
+                std::cout << "Player has already used up the Dash ability.\n\n";
             }
         }
 
@@ -332,7 +368,7 @@ bool input_validation(std::string i, Coordinates* g, Coordinates* p, Coordinates
 
     else
     {
-        std::cout << "Invalid input." << std::endl;
+        std::cout << "Invalid input." << std::endl << std::endl;
         return false;
     }
 };
@@ -357,7 +393,7 @@ void enemy_move(Coordinates* e, Coordinates* g, Coordinates* p)
     // If they are in the same room as the player, enemy cannot move
     if (e->x == p->x && e->y == p->y)
     {
-        std::cout << "Enemy gets caught by the player.\n";
+        std::cout << "Enemy gets caught by the player.\n\n";
         return;
     }
 
@@ -410,6 +446,8 @@ void enemy_move(Coordinates* e, Coordinates* g, Coordinates* p)
     // update enemy position
     e->x = new_x;
     e->y = new_y;
+
+    std::cout << "Enemy moved to room (" << new_x << ", " << new_y << ").\n\n";
 }
 
 /**
