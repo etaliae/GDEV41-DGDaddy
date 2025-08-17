@@ -3,8 +3,8 @@
 
 #include "coordinates.h"
 
-void initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e);
-// This reads settings.txt and initializes the grid, player, and enemy.
+int initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e);
+// This validates settings.txt and initializes the grid, player, and enemy.
 
 void generate_grid(Coordinates* g, Coordinates* p, Coordinates* e);
 // This prints out the grid, along with the player and the enemy.
@@ -17,7 +17,11 @@ int main()
     Coordinates grid, player, enemy;
     std::string input;
 
-    initialize_chars(&grid, &player, &enemy);
+    if (initialize_chars(&grid, &player, &enemy) != 0)
+    {
+        std::cout << "Invalid values in settings.txt." << std::endl;
+        return 0;
+    }
 
     do
     {
@@ -30,7 +34,7 @@ int main()
     return 0;
 }
 
-void initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e)
+int initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e)
 {
     std::ifstream file("settings.txt");
     std::string temp;
@@ -42,8 +46,61 @@ void initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e)
     {
         int numtemp;
 
-        numtemp = std::stoi(temp);
+        try
+        { // Handle exceptions, if any.
+            numtemp = std::stoi(temp);
+
+            if (numtemp < 1)
+            {
+                throw 1;
+            }
+
+            // If player and enemy values are beyond the grid.
+            else if (counter/2 > 0) 
+            {
+                if (counter%2 == 0)
+                {
+                    if (numtemp > entities[0]->x)
+                    {
+                        throw 2;
+                    }
+                }
+
+                else
+                {
+                    if (numtemp > entities[0]->y)
+                    {
+                        throw 3;
+                    }
+                }
+            }
+        }
+        catch(int n)
+        {
+            if (n == 1)
+            {
+                std::cout << "Value must be greater than 0." << std::endl;
+            }
+
+            else if (n == 2)
+            {
+                std::cout << "Player/enemy x coordinate is greater than the grid size." << std::endl;
+            }
+
+            else if (n == 3)
+            {
+                std::cout << "Player/enemy y coordinate is greater than the grid size." << std::endl;
+            }
+
+            return 1;
+        }
+        catch(...) // Catches non-integer input.
+        {
+            std::cout << "Non-integer input." << std::endl;
+            return 1;
+        }
     
+        // If no exception, assign values.
         if (counter%2 == 0)
         {
             entities[counter/2]->x = numtemp;
@@ -56,7 +113,7 @@ void initialize_chars(Coordinates* g, Coordinates* p, Coordinates* e)
         counter++;
     };
 
-    return;
+    return 0;
 }
 
 void generate_grid(Coordinates* g, Coordinates* p, Coordinates* e) 
