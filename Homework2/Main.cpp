@@ -164,6 +164,11 @@ int main()
                     BCaccumulator = 0;
                 }
                 if(IsMouseButtonDown(controls[0])){
+                    if (BCaccumulator == 0){ // first production of particle
+                        find_inactive();
+                        activate_particle(0);
+                    }
+
                     BCaccumulator += delta_time;
 
                     if(BCaccumulator >= 1/BCRate){
@@ -178,6 +183,11 @@ int main()
                     BCaccumulator = 0;
                 }
                 if(IsKeyDown(controls[0])){
+                    if (BCaccumulator == 0){ // first production of particle
+                        find_inactive();
+                        activate_particle(0);
+                    }
+
                     BCaccumulator += delta_time;
 
                     if(BCaccumulator >= 1/BCRate){
@@ -194,6 +204,11 @@ int main()
                     MBaccumulator = 0;
                 }
                 if(IsMouseButtonDown(controls[3])){
+                    if (MBaccumulator == 0){
+                        find_inactive();
+                        activate_particle(1);
+                    }
+                    
                     MBaccumulator += delta_time;
 
                     if(MBaccumulator >= 1/MBRate){
@@ -208,6 +223,11 @@ int main()
                     MBaccumulator = 0;
                 }
                 if(IsKeyDown(controls[3])){
+                    if (MBaccumulator == 0){
+                        find_inactive();
+                        activate_particle(1);
+                    }
+                    
                     MBaccumulator += delta_time;
 
                     if(MBaccumulator >= 1/MBRate){
