@@ -27,7 +27,9 @@ struct Particle {
     float speed;
     float lifetime;
     float radius = 5.0f;
+
     float colorRate;
+    float opacity;
     Color color;
 };
 
@@ -244,6 +246,7 @@ int main()
     CloseWindow();
 
     delete[] particles;
+    delete[] active;
     return 0;
 }
 
@@ -313,7 +316,8 @@ void activate_particle(int mode){
     unsigned char b = GetRandomValue(0, 255);
     Color col = {r, g, b, 255};
     particles[ind].color = col;
-    particles[ind].colorRate = particles[ind].lifetime/255;
+    particles[ind].colorRate = 255/particles[ind].lifetime;
+    particles[ind].opacity = 255.0f;
 
     active[ind] = true;
   
@@ -331,9 +335,10 @@ void update_particle(int particle){
         --active_particles;
     }
     else{
+        std::cout << static_cast <int> (particles[particle].color.a) << " / " << particles[particle].lifetime << " help" << std::endl;
         particles[particle].position = Vector2Add(particles[particle].position, particles[particle].velocity * TIMESTEP);
-        particles[particle].color.a -= particles[particle].colorRate;
-        std::cout << static_cast <int> (particles[particle].color.a) << " help" << std::endl;
+        particles[particle].opacity = std::max(particles[particle].opacity - particles[particle].colorRate * TIMESTEP, 0.0f);
+        particles[particle].color.a = particles[particle].opacity;
         particles[particle].lifetime -= TIMESTEP;
     }
     
