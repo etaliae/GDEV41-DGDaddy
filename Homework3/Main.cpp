@@ -25,7 +25,7 @@ struct Ball {
     Vector2 acceleration;
     Vector2 velocity;
     
-    bool isActive;
+    bool isActive = true;
 };
 
 Rectangle borders[4] = {
@@ -183,6 +183,9 @@ int main() {
                         
                         circleB.velocity = Vector2Subtract(circleA.velocity,
                             Vector2Scale(collisionVector, impulse/circleB.mass) );
+
+                        std::cout << "Ball " << _ << ": " << circleA.velocity.x << ", " << circleA.velocity.y << " / " << Vector2Length(circleA.velocity);
+                        std::cout << "Ball " << x << ": " << circleB.velocity.x << ", " << circleB.velocity.y << " / " << Vector2Length(circleB.velocity) << "\n";
                     }
 
                 }
@@ -306,7 +309,6 @@ void init_balls(){
         ball.inverse_mass = 1 / ball.mass;
         ball.acceleration = Vector2Zero();
         ball.velocity = Vector2Zero();
-        ball.isActive = true;
         balls[_] = ball;
     }
 }
