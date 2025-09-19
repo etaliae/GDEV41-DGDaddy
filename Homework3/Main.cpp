@@ -2,6 +2,7 @@
 #include <raymath.h>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
@@ -23,6 +24,8 @@ struct Ball {
     float inverse_mass; // A variable for 1 / mass. Used in the calculation for acceleration = sum of forces / mass
     Vector2 acceleration;
     Vector2 velocity;
+
+    bool isActive = true;
 };
 
 Rectangle borders[4] = {
@@ -75,6 +78,7 @@ Vector2 initPos[15] = {
 Ball* balls = new Ball[MAX_BALLS];
 bool e = true;
 Vector2 startClick = Vector2Zero(), endClick = Vector2Zero();
+int pocketIndex;
 
 int main() {
     
@@ -99,7 +103,7 @@ int main() {
                 endClick = GetMousePosition();
             }
             if(IsMouseButtonReleased(0)) {
-                Vector2 initValue = Vector2ClampValue(Vector2Scale((startClick - endClick), 2500), 0, 250000);
+                Vector2 initValue = Vector2ClampValue(Vector2Scale((startClick - endClick), 2500), 0, 50000);
                 std::cout << Vector2Length((initValue)) << std::endl;
                 forces = Vector2Add(forces, initValue);
                 startClick = Vector2Zero();
@@ -123,6 +127,26 @@ int main() {
             for(int _ = 0; _ < MAX_BALLS; _++){
                 Ball& circleA = balls[_];
 
+                if (!circleA.isActive)
+                {
+                    if (_ == 0 && no_motion()) // if it is the cue ball and there is no motion among other balls
+                    {
+                        // set ball's velocity and acceleration to 0
+                        circleA.acceleration = Vector2Zero();
+                        circleA.velocity = Vector2Zero();
+
+                        // set its position to be just outside the pocket it just got in
+                        Vector2 offsetDirection = Vector2Normalize( Vector2Subtract({WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2}, pockets[pocketIndex]) );
+                        circleA.position = pockets[pocketIndex] + Vector2Scale(offsetDirection, (40.0f + circleA.radius) * 1.1f);
+
+                        // set it back to active
+                        circleA.isActive = true;
+                    }
+
+                    // no need to do physics and collision checks
+                    continue;
+                }
+
                 // ------ SEMI-IMPLICIT EULER INTEGRATION -------
                 // Computes for velocity using v(t + dt) = v(t) + (a(t) * dt)
                 circleA.velocity = Vector2Add(circleA.velocity, Vector2Scale(circleA.acceleration, TIMESTEP));
@@ -135,13 +159,17 @@ int main() {
                 // Computes for change in position using x(t + dt) = x(t) + (v(t + dt) * dt)
                 circleA.position = Vector2Add(circleA.position, Vector2Scale(circleA.velocity, TIMESTEP));
 
-                // Collision Detection
-                for(int x = 0; x < MAX_BALLS; x++){
-                    if(x == _){
-                        continue;
-                    }
+                if (circleA.position.x > WINDOW_WIDTH || circleA.position.x < 0 || circleA.position.y > WINDOW_HEIGHT || circleA.position.y < 0)
+                {
+                    std::cout << "Ball " << _ << " is out of bounds: " << circleA.position.x << ", " << circleA.position.y << "\n";
+                }
 
+                // Collision Detection with other balls
+                for(int x = 0; x < MAX_BALLS; x++){
                     Ball& circleB = balls[x];
+
+                    // avoid checking if it is the same ball, or if ball is inactive
+                    if (_ == x || !circleB.isActive) continue;                    
 
                     Vector2 collisionVector = Vector2Subtract(circleA.position, circleB.position);
                     float cvMagnitude = Vector2Length(collisionVector);
@@ -155,20 +183,62 @@ int main() {
                             * (circleA.inverse_mass + circleB.inverse_mass);
                         float impulse = -(iNum/iDenom);
 
-                        circleA.velocity = circleA.velocity + 
-                            Vector2Scale(collisionVector, impulse/circleA.mass);
+                        circleA.velocity = Vector2Add(circleA.velocity, 
+                            Vector2Scale(collisionVector, impulse/circleA.mass) );
                         
-                        circleB.velocity = circleB.velocity -
-                            Vector2Scale(collisionVector, impulse/circleB.mass);
+                        circleB.velocity = Vector2Subtract(circleA.velocity,
+                            Vector2Scale(collisionVector, impulse/circleB.mass) );
                     }
 
                 }
-                // Negates the velocity at x and y if the object hits a wall. (Basic Collision Detection)
-                if(circleA.position.x + circleA.radius >= WINDOW_WIDTH || circleA.position.x - circleA.radius <= 0) {
-                    circleA.velocity.x *= -1;
+
+                // Collision Detection with pockets
+                for (int i = 0; i < 4; i++){
+                    float distance = Vector2Length( Vector2Subtract(circleA.position, pockets[i]) );
+
+                    // pocket radius: 40
+                    if (distance <= circleA.radius + 40.0f)
+                    {
+                        circleA.isActive = false;
+
+                        // if it is cue ball, note which pocket it got in
+                        if (_ == 0) pocketIndex = i;
+
+                        continue;
+                    }
                 }
-                if(circleA.position.y + circleA.radius >= WINDOW_HEIGHT || circleA.position.y - circleA.radius <= 0) {
-                    circleA.velocity.y *= -1;
+
+                // if ball just got pocketed, no need to check for collisions with borders
+                if (!circleA.isActive) continue;
+
+                // handle collision with borders
+                for (int i = 0; i < 4; i++){
+                    // get the point on the border that is closest to the ball
+                    Vector2 closestPoint;
+                    closestPoint.x = std::clamp(circleA.position.x, borders[i].x, borders[i].x + borders[i].width);
+                    closestPoint.y = std::clamp(circleA.position.y, borders[i].y, borders[i].y + borders[i].height);
+
+                    Vector2 collisionVector = Vector2Subtract(circleA.position, closestPoint);
+                    float cvMagnitude = Vector2Length(collisionVector);
+
+                    // if distance between closest point and the ball is greater than the ball's radius,
+                    // no collision
+                    if (cvMagnitude > circleA.radius) continue;
+
+                    // border is static, so relative velocity is just the velocity of circle A
+                    Vector2 velocityRel = circleA.velocity;   
+                    float dotProduct = Vector2DotProduct(collisionVector, velocityRel);
+
+                    // if collision normal and relative velocity are towards roughly the same direction, no collision
+                    if (dotProduct >= 0) continue;
+
+                    float iNum = (1 + e) * dotProduct;
+                    float iDenom = pow(cvMagnitude, 2)
+                        * (circleA.inverse_mass + 0.0f); // inverse_mass of border is approximated to 0 since it is static
+                    float impulse = -(iNum/iDenom);
+
+                    circleA.velocity = Vector2Add(circleA.velocity, 
+                        Vector2Scale(collisionVector, impulse/circleA.mass) );
                 }
             }
 
@@ -194,7 +264,8 @@ int main() {
         
         // Draw the circles
         for(int i = 0; i < MAX_BALLS; i++){
-            DrawCircleV(balls[i].position, balls[i].radius, balls[i].color);
+            if (balls[i].isActive)
+                DrawCircleV(balls[i].position, balls[i].radius, balls[i].color);
         }
 
         // Draw the line for aiming
@@ -247,7 +318,7 @@ void init_balls(){
 bool no_motion(){
     bool inMotion = false;
     for(int _ = 0; _ < MAX_BALLS; _++){
-        if(Vector2Length(balls[_].velocity) > 0.0f){
+        if(balls[_].isActive && Vector2Length(balls[_].velocity) > 0.0f){
             inMotion = true;
             break;
         }
