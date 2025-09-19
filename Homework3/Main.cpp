@@ -24,8 +24,8 @@ struct Ball {
     float inverse_mass; // A variable for 1 / mass. Used in the calculation for acceleration = sum of forces / mass
     Vector2 acceleration;
     Vector2 velocity;
-
-    bool isActive = true;
+    
+    bool isActive;
 };
 
 Rectangle borders[4] = {
@@ -158,11 +158,6 @@ int main() {
                 }
                 // Computes for change in position using x(t + dt) = x(t) + (v(t + dt) * dt)
                 circleA.position = Vector2Add(circleA.position, Vector2Scale(circleA.velocity, TIMESTEP));
-
-                if (circleA.position.x > WINDOW_WIDTH || circleA.position.x < 0 || circleA.position.y > WINDOW_HEIGHT || circleA.position.y < 0)
-                {
-                    std::cout << "Ball " << _ << " is out of bounds: " << circleA.position.x << ", " << circleA.position.y << "\n";
-                }
 
                 // Collision Detection with other balls
                 for(int x = 0; x < MAX_BALLS; x++){
@@ -311,6 +306,7 @@ void init_balls(){
         ball.inverse_mass = 1 / ball.mass;
         ball.acceleration = Vector2Zero();
         ball.velocity = Vector2Zero();
+        ball.isActive = true;
         balls[_] = ball;
     }
 }
