@@ -181,11 +181,8 @@ int main() {
                         circleA.velocity = Vector2Add(circleA.velocity, 
                             Vector2Scale(collisionVector, impulse/circleA.mass) );
                         
-                        circleB.velocity = Vector2Subtract(circleA.velocity,
+                        circleB.velocity = Vector2Subtract(circleB.velocity,
                             Vector2Scale(collisionVector, impulse/circleB.mass) );
-
-                        std::cout << "Ball " << _ << ": " << circleA.velocity.x << ", " << circleA.velocity.y << " / " << Vector2Length(circleA.velocity);
-                        std::cout << "Ball " << x << ": " << circleB.velocity.x << ", " << circleB.velocity.y << " / " << Vector2Length(circleB.velocity) << "\n";
                     }
 
                 }
