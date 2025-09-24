@@ -77,7 +77,7 @@ Vector2 initPos[15] = {
 
 Ball* balls = new Ball[MAX_BALLS];
 bool e = true;
-Vector2 startClick = Vector2Zero(), endClick = Vector2Zero();
+Vector2 startClick = {-1, -1}, endClick = Vector2Zero();
 int pocketIndex;
 
 int main() {
@@ -101,12 +101,16 @@ int main() {
             }
             if(IsMouseButtonDown(0)) {
                 endClick = GetMousePosition();
+
+                // if startClick was not set at this point, set it to the current mouse position
+                if (startClick.x == -1)
+                    startClick = endClick;
             }
             if(IsMouseButtonReleased(0)) {
                 Vector2 initValue = Vector2ClampValue(Vector2Scale((startClick - endClick), 2500), 0, 50000);
                 std::cout << Vector2Length((initValue)) << std::endl;
                 forces = Vector2Add(forces, initValue);
-                startClick = Vector2Zero();
+                startClick = {-1, -1};
                 endClick = Vector2Zero();
             }
         }
