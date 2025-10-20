@@ -222,7 +222,7 @@ void generate_balls(){
 void create_quadtree(Node& node)
 {
     node.children.reserve(4);
-    node.containedBalls.reserve(int(node.half_size / 5));
+    node.containedBalls.reserve(int(node.half_size / 5) * int(node.half_size / 5));
 
     // top-left child
     Node* TL_child = new Node;
