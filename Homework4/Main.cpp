@@ -253,8 +253,16 @@ void create_quadtree(Node& node)
     node.children.push_back(BR_child);
 
     // if children are leaf nodes (the children can only be either all leaves or all non-leaves),
-    // do not proceed
-    if (TL_child->isLeafNode()) return;
+    if (TL_child->isLeafNode())
+    {
+        TL_child->containedBalls.reserve(2 * 2);
+        TR_child->containedBalls.reserve(2 * 2);
+        BL_child->containedBalls.reserve(2 * 2);
+        BR_child->containedBalls.reserve(2 * 2);
+
+        // do not proceed
+        return;
+    }
 
     // create more children with each child as the "root"
     create_quadtree(*TL_child);
