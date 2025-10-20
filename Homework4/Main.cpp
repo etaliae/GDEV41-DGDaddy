@@ -12,9 +12,6 @@ const float TIMESTEP = 1/FPS;
 const int BALLS_PER_PRESS = 25;
 const float ELASTICITY = 1.0f;
 
-// Two structs referencing each other
-// Source: https://stackoverflow.com/questions/4394079/structs-that-refer-to-each-other
-
 struct Ball;
 struct Node;
 
@@ -87,6 +84,8 @@ int main()
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Quadtrees");
     SetTargetFPS(FPS);
+
+    balls.reserve(10000);
 
     root = new Node;
     root->position = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
@@ -222,6 +221,9 @@ void generate_balls(){
 
 void create_quadtree(Node& node)
 {
+    node.children.reserve(4);
+    node.containedBalls.reserve(int(node.half_size / 5));
+
     // top-left child
     Node* TL_child = new Node;
     TL_child->position = Vector2Add(node.position, {-node.half_size / 2, -node.half_size / 2});
