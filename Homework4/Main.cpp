@@ -149,7 +149,7 @@ int main()
             for(int _ = 0; _ < balls.size(); _++){
                 Ball& circleA = balls[_];
                 handle_collisions_with_ancestors(circleA);
-                // handle_collisions_with_descendants(circleA, *(circleA.node));
+                handle_collisions_with_descendants(circleA, *(circleA.node));
             }
 
             accumulator -= TIMESTEP;
