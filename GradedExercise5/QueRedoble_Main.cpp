@@ -5,8 +5,8 @@
 #include <vector>
 #include <set>
 
-const int WINDOW_WIDTH = 1280; // 128
-const int WINDOW_HEIGHT = 720; // 72
+const int WINDOW_WIDTH = 1280; 
+const int WINDOW_HEIGHT = 720; 
 const float FPS = 60;
 const float TIMESTEP = 1/FPS;
 const int BALLS_PER_PRESS = 25;
