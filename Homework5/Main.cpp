@@ -27,18 +27,16 @@ struct GachaComponent {
     // thatsMother - whether it gives birth to asteroids;
 };
 
-struct NormalBehaviorComponent {
+struct MoveComponent {
     Vector2 velocity;
 };
 
 struct FollowBehaviorComponent {
-    float speed; 
-    Vector2 direction;
+    float speed;
 };
 
 struct RepelBehaviorComponent {
-    float speed; 
-    Vector2 direction;
+    float speed;
 };
 
 struct DestroyTimerComponent {
@@ -116,65 +114,50 @@ int main()
                 }
             }
 
-            auto normal = registry.view<NormalBehaviorComponent>();
-            for (auto entity : normal) {
-                CircleComponent& rad = registry.get<CircleComponent>(entity);
-                PositionComponent& pos = registry.get<PositionComponent>(entity);
-                NormalBehaviorComponent& n = registry.get<NormalBehaviorComponent>(entity);
-
-                pos.position = Vector2Add(pos.position, Vector2Scale(n.velocity, TIMESTEP));
-
-                if (pos.position.x + rad.radius >= WINDOW_WIDTH || pos.position.x - rad.radius <= 0){
-                    n.velocity.x *= -1;
-                }
-
-                if (pos.position.y + rad.radius >= WINDOW_HEIGHT || pos.position.y - rad.radius <= 0){
-                    n.velocity.y *= -1;
-                }
-            }
-
             auto follow = registry.view<FollowBehaviorComponent>();
             for (auto entity : follow) {
-                CircleComponent& rad = registry.get<CircleComponent>(entity);
                 PositionComponent& pos = registry.get<PositionComponent>(entity);
+                MoveComponent& m = registry.get<MoveComponent>(entity);
                 FollowBehaviorComponent& f = registry.get<FollowBehaviorComponent>(entity);
 
-                f.direction = Vector2Normalize(GetMousePosition() - pos.position);
-
-                Vector2 f_velocity = Vector2Scale(f.direction, f.speed);
-                
-                pos.position = Vector2Add(pos.position, Vector2Scale(f_velocity, TIMESTEP));
-
-                /* if (pos.position.x + rad.radius >= WINDOW_WIDTH || pos.position.x - rad.radius <= 0){
-                    f_velocity.x *= -1;
-                }
-
-                if (pos.position.y + rad.radius >= WINDOW_HEIGHT || pos.position.y - rad.radius <= 0){
-                    f_velocity.y *= -1;
-                } */
+                m.velocity = Vector2Scale(Vector2Normalize(GetMousePosition() - pos.position), f.speed);
             }  
             
             auto repel = registry.view<RepelBehaviorComponent>();
             for (auto entity : repel) {
-                CircleComponent& rad = registry.get<CircleComponent>(entity);
                 PositionComponent& pos = registry.get<PositionComponent>(entity);
+                MoveComponent& m = registry.get<MoveComponent>(entity);
                 RepelBehaviorComponent& r = registry.get<RepelBehaviorComponent>(entity);
 
-                r.direction = Vector2Negate(Vector2Normalize(GetMousePosition() - pos.position));
+                m.velocity = Vector2Scale(Vector2Normalize(pos.position - GetMousePosition()), r.speed);
+            }
 
-                Vector2 r_velocity = Vector2Scale(r.direction, r.speed);
-                
-                if (pos.position.x + rad.radius >= WINDOW_WIDTH || pos.position.x - rad.radius <= 0){
-                    r_velocity.x *= -1;
+            auto move = registry.view<MoveComponent>();
+            for (auto entity : move) {
+                CircleComponent& rad = registry.get<CircleComponent>(entity);
+                PositionComponent& pos = registry.get<PositionComponent>(entity);
+                MoveComponent& m = registry.get<MoveComponent>(entity);
+
+                // Bounce off Screen Edges with prevention for screen hugging
+                if(pos.position.x - rad.radius <= 0.0f) {
+                    pos.position.x = rad.radius;
+                    m.velocity.x *= -1.0f;
+                }
+                if(pos.position.x + rad.radius >= WINDOW_WIDTH) {
+                    pos.position.x = WINDOW_WIDTH - rad.radius;
+                    m.velocity.x *= -1.0f;
+                }
+                if(pos.position.y - rad.radius <= 0.0f) {
+                    pos.position.y = rad.radius;
+                    m.velocity.y *= -1.0f;
+                }
+                if(pos.position.y + rad.radius >= WINDOW_HEIGHT) {
+                    pos.position.y = WINDOW_HEIGHT - rad.radius;
+                    m.velocity.y *= -1.0f;
                 }
 
-                if (pos.position.y + rad.radius >= WINDOW_HEIGHT || pos.position.y - rad.radius <= 0){
-                    r_velocity.y *= -1;
-                }
-
-                pos.position = Vector2Add(pos.position, Vector2Scale(r_velocity, TIMESTEP));
-                
-            }  
+                pos.position = Vector2Add(pos.position, Vector2Scale(m.velocity, TIMESTEP));
+            }
 
             accumulator -= TIMESTEP;
         }
@@ -224,22 +207,25 @@ void generate_balls(Vector2 initpos){
     
     ColorComponent& c = registry.emplace<ColorComponent>(e);
 
-    if (rng.directionBehavior <= 50.0f){
-        NormalBehaviorComponent& n = registry.emplace<NormalBehaviorComponent>(e);
-        n.velocity = Vector2{get_random_float(-200.0f, 200.0f), get_random_float(-200.0f, 200.0f)};
+    MoveComponent& m = registry.emplace<MoveComponent>(e, Vector2{
+        get_random_float(-200.0f, 200.0f),
+        get_random_float(-200.0f, 200.0f)});
+
+    if (rng.directionBehavior > 50.0f){
+        if (rng.directionBehavior <= 75.0f){ // attracted
+            FollowBehaviorComponent& f = registry.emplace<FollowBehaviorComponent>(e);
+            f.speed = get_random_float(10.0f, 300.0f);
+            m.velocity = Vector2Scale(Vector2Normalize(GetMousePosition() - pos.position), f.speed);
+            c.color = VIOLET;
+        }
+        else { // repelled
+            RepelBehaviorComponent& a = registry.emplace<RepelBehaviorComponent>(e);
+            a.speed = get_random_float(10.0f, 100.0f);
+            m.velocity = Vector2Scale(Vector2Normalize(pos.position - GetMousePosition()), a.speed);
+            c.color = MAGENTA;
+        }
     }
-    else if (rng.directionBehavior <= 75.0f){ // attracted
-        FollowBehaviorComponent& f = registry.emplace<FollowBehaviorComponent>(e);
-        f.speed = get_random_float(10.0f, 300.0f);
-        f.direction = Vector2Normalize(GetMousePosition() - pos.position);
-        c.color = VIOLET;
-    }
-    else { // repelled
-        RepelBehaviorComponent& a = registry.emplace<RepelBehaviorComponent>(e);
-        a.speed = get_random_float(10.0f, 100.0f);
-        a.direction = Vector2Negate(Vector2Normalize(GetMousePosition() - pos.position));
-        c.color = MAGENTA;
-    }
+    // else, normal
 
     if (rng.hasTimer <= 35.0f){
         registry.emplace<DestroyTimerComponent>(e, get_random_float(2.0f, 5.0f));
