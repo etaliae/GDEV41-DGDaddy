@@ -241,14 +241,14 @@ void generate_balls(Vector2 initpos){
         c.color = MAGENTA;
     }
 
-    if (rng.hasTimer <= 50.0f){
+    if (rng.hasTimer <= 35.0f){
         registry.emplace<DestroyTimerComponent>(e, get_random_float(2.0f, 5.0f));
-        //c.color = RED;
+        c.color = RED;
     }
 
     if (rng.thatsMother <= 10.0f){
-        registry.emplace<MotherComponent>(e, GetRandomValue(1, 5));
-        //c.color = ORANGE;
+        registry.emplace<MotherComponent>(e, GetRandomValue(2, 5));
+        c.color = ORANGE;
     }
 }
 
