@@ -9,6 +9,7 @@
  * ○ 5 End of the Day Scene/Redo the Day Scene
  * ○ 6 Endgame Scene
  * ○ 7 Name Entry Scene
+ *      source: https://github.com/raysan5/raylib/blob/master/examples/text/text_input_box.c
  */
 
 #include <raylib.h>
@@ -258,7 +259,7 @@ public:
 
         if (IsKeyPressed(KEY_ENTER)) {
             if (GetSceneManager() != nullptr) {
-                GetSceneManager()->SwitchScene(1);
+                GetSceneManager()->SwitchScene(7);
             }
         }
     }
@@ -268,5 +269,75 @@ public:
         // You're a great singer! / Yummy! / Erm... / Try again!
         DrawText("Total Orders: X/Y", 250, 150, 30, BLACK);
         DrawText("Press 'Enter' to type in your name for the leaderboard!", 150, 550, 18, BLACK);
+    }
+};
+
+class NameEntryScene : public Scene {
+    char name[5] = "\0";
+    int letter_count = 0;
+
+    Rectangle text_box = {WINDOW_WIDTH/2.0f - 100.0f, 250.0f, 200.0f, 100.0f};
+    bool mouseOnText = false;
+
+    int framesCounter = 0;
+
+public:
+    void Begin() override {
+    }   
+
+    void End() override {}
+
+    void Update() override {
+        if(CheckCollisionPointRec(GetMousePosition(), text_box)){
+            mouseOnText = true;
+        } else {
+            mouseOnText = false;
+        }
+
+        if (mouseOnText) {
+            SetMouseCursor(MOUSE_CURSOR_IBEAM);
+            
+            int key = GetCharPressed();
+
+            while (key > 0){
+                if ((key >= 32) && (key <= 125) && (letter_count < 4)){
+                    name[letter_count] = (char)key;
+                    letter_count++;
+                }
+
+                key = GetCharPressed();
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE)){
+                letter_count--;
+                    if (letter_count < 0){
+                        letter_count = 0;
+                    }
+                name[letter_count] = '\0';
+            }
+
+        }
+        else {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+        }
+
+        if (mouseOnText){
+            framesCounter++;
+        }
+        else {
+            framesCounter = 0;
+        }
+
+        if (IsKeyPressed(KEY_ENTER)) {
+            if (GetSceneManager() != nullptr) {
+                GetSceneManager()->SwitchScene(3);
+            }
+        }
+    }
+
+    void Draw() override {
+        DrawRectangleRec(text_box, LIGHTGRAY);
+        DrawText("Press 'Enter' to submit your name for the leaderboard!", 150, 550, 18, BLACK);
+        DrawText(name, (int)text_box.x + 10, (int)text_box.y +10, 40, BLACK);
     }
 };

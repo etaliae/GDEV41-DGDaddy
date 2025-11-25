@@ -26,12 +26,16 @@ int main() {
     EndGameScene end_game_scene;
     end_game_scene.SetSceneManager(&scene_manager);
 
+    NameEntryScene name_entry_scene;
+    name_entry_scene.SetSceneManager(&scene_manager);
+
     scene_manager.RegisterScene(&title_scene, 0);
     scene_manager.RegisterScene(&game_scene, 1);
     scene_manager.RegisterScene(&leaderboard_scene, 3);
     scene_manager.RegisterScene(&pause_scene, 4);
     scene_manager.RegisterScene(&day_end_scene, 5);
     scene_manager.RegisterScene(&end_game_scene, 6);
+    scene_manager.RegisterScene(&name_entry_scene, 7);
 
     scene_manager.SwitchScene(0);
 
