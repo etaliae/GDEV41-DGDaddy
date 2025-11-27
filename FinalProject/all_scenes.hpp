@@ -147,20 +147,22 @@ public:
 };
 
 class GameScene : public Scene {
-    Texture pause, raylib_logo;
-    Vector2 logo_position;
+    Texture pause;
     float accumulator;
 
 public:
     void Begin() override {
         pause = ResourceManager::GetInstance()->GetTexture("pause.png");
-        raylib_logo = ResourceManager::GetInstance()->GetTexture("Raylib_logo.png");
-        logo_position = {50, 50};
+
+        srand(time(0));
 
         SetTargetFPS(FPS);
         init_textures();
-        init_entities();
+        init_entities(registry, player, spawn_timer);
+        reserve_memory();
         accumulator = 0;
+        day_score = 0;
+        button_name = "";
     }   
 
     void End() override {}
@@ -168,18 +170,18 @@ public:
     void Update() override {
         float delta_time = GetFrameTime();
 
-        read_player_input();
+        read_player_input(registry, player);
 
         // Physics Step
         accumulator += delta_time;
         while(accumulator >= TIMESTEP)
         {
-            update_customers();
-            affect_velocities();
-            move_entities();
-            handle_collisions();
-            get_hot_items();
-            update_timers();
+            update_customers(registry);
+            affect_velocities(registry);
+            move_entities(registry);
+            handle_collisions(registry);
+            get_hot_items(registry);
+            update_timers(registry, spawn_timer);
 
             accumulator -= TIMESTEP;
         }
@@ -191,10 +193,25 @@ public:
                 GetSceneManager()->SwitchScene(4);
             }
         }
+
+        if (button_name != "")
+        {
+            if (IsKeyPressed(KEY_ENTER))
+            {
+                if (GetSceneManager() != nullptr) {
+                    GetSceneManager()->SwitchScene(5);
+                }
+            }
+        }
     }
 
     void Draw() override {
-        draw_level();
+        draw_level(registry, player);
+
+        if (button_name != "")
+        {
+            DrawText("Press 'Enter' to End Day", 300, 550, 18, BLACK);
+        }
 
         // DrawText(TextFormat("Orders: %04i", balls.size()), 20, 20, 20, WHITE);
         // DrawTexturePro(raylib_logo, {0, 0, 256, 256}, {logo_position.x, logo_position.y, 200, 200}, {0, 0}, 0.0f, WHITE);
@@ -259,26 +276,42 @@ public:
                 GetSceneManager()->SwitchScene(1);
             }
         }
-        if (uiLibrary.Button(0, "Redo Day", 250.0f))
+        if (button_name == "Next Day" || button_name == "Redo Day")
         {
-            std::cout << "Hello!" << std::endl;
-            if (GetSceneManager() != nullptr) {
-                GetSceneManager()->SwitchScene(1);
+            if (uiLibrary.Button(0, button_name, 250.0f))
+            {
+                if (button_name == "Next Day")
+                    day++;
+                
+                registry.clear();
+
+                if (GetSceneManager() != nullptr) {
+                    GetSceneManager()->SwitchScene(1);
+                }
             }
         }
-        if (uiLibrary.Button(1, "Next Day", 250.0f))
+        else if (button_name == "End Game")
         {
-            std::cout << "Hi!" << std::endl;
-            if (GetSceneManager() != nullptr) {
-                GetSceneManager()->SwitchScene(1);
+            if (uiLibrary.Button(0, button_name, 250.0f))
+            {
+                if (GetSceneManager() != nullptr) {
+                    GetSceneManager()->SwitchScene(6);
+                }
             }
         }
     }
 
     void Draw() override {
-        DrawText("Yummy!", position_x, 30, 100, BLACK); //Text depends on performance
-        // You're a great singer! / Yummy! / Erm... / Try again!
-        DrawText("Orders: X/Y", 300, 150, 30, BLACK);
+        if (button_name == "Next Day" || button_name == "End Game")
+        {
+            DrawText("Yummy!", position_x, 30, 100, BLACK);
+        }
+        else
+        {
+            DrawText("Ermm..", position_x, 30, 100, BLACK);
+        }
+
+        DrawText(TextFormat("Total Score: %04i", int(score)), 300, 150, 30, BLACK);
         // DrawText(TextFormat("Orders: %04i", balls.size()), 20, 20, 20, WHITE);
     }
 };
@@ -316,9 +349,8 @@ public:
     }
 
     void Draw() override {
-        DrawText("Yummy!", text_position.x, text_position.y, 100, BLACK); //Text depends on performance
-        // You're a great singer! / Yummy! / Erm... / Try again!
-        DrawText("Total Orders: X/Y", 250, 150, 30, BLACK);
+        DrawText("Yummy!", text_position.x, text_position.y, 100, BLACK);
+        DrawText(TextFormat("Total Score: %04i", int(score)), 250, 150, 30, BLACK);
         DrawText("Press 'Enter' to type in your name for the leaderboard!", 150, 550, 18, BLACK);
     }
 };
@@ -380,6 +412,8 @@ public:
         }
 
         if (IsKeyPressed(KEY_ENTER)) {
+            
+
             if (GetSceneManager() != nullptr) {
                 GetSceneManager()->SwitchScene(3);
             }
