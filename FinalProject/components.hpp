@@ -13,6 +13,13 @@ struct PositionComponent
 	Vector2 position;		// center
 };
 
+struct SpriteComponent
+{
+	Texture sprite_sheet;
+	std::vector<Rectangle> frames;
+	int frame_number;
+};
+
 struct MoveComponent
 {
 	Vector2 velocity;

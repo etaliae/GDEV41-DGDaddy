@@ -158,6 +158,7 @@ public:
         logo_position = {50, 50};
 
         SetTargetFPS(FPS);
+        init_textures();
         init_entities();
         accumulator = 0;
     }   
@@ -196,7 +197,7 @@ public:
         draw_level();
 
         // DrawText(TextFormat("Orders: %04i", balls.size()), 20, 20, 20, WHITE);
-        DrawTexturePro(raylib_logo, {0, 0, 256, 256}, {logo_position.x, logo_position.y, 200, 200}, {0, 0}, 0.0f, WHITE);
+        // DrawTexturePro(raylib_logo, {0, 0, 256, 256}, {logo_position.x, logo_position.y, 200, 200}, {0, 0}, 0.0f, WHITE);
     }
 };
 
