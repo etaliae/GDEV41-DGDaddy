@@ -24,11 +24,13 @@
 struct UiLibrary uiLibrary;
 
 class TitleScene : public Scene {
-    Texture raylib_logo;
+    Texture bean;
+    float counter;
 
 public:
     void Begin() override {
-        raylib_logo = ResourceManager::GetInstance()->GetTexture("bean.png");
+        bean = ResourceManager::GetInstance()->GetTexture("bean.png");
+        counter = 0.0f;
     }
 
     void End() override {}
@@ -63,7 +65,7 @@ public:
     }
 
     void Draw() override {
-        DrawTexturePro(raylib_logo, {0, 0, 16, 16}, {250, 250, 300, 300}, {0, 0}, 0.0f, WHITE);
+        DrawTexturePro(bean, {counter * 16, 0, 16, 16}, {250, 250, 300, 300}, {0, 0}, 0.0f, WHITE);
         DrawText("R@Nd0M\n  cafe!", 290, 350, 60, WHITE);
     }
 };
