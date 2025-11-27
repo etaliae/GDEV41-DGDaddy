@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <vector>
 
 #include "entt.hpp"
 #include "components.hpp"
@@ -13,12 +14,17 @@ const float e = 0.25f;
 
 const float GRID_SIZE = 50;
 const float radius = 16.0f;
+const float item_radius = 12.0f;
 const float interact_range = GRID_SIZE * 1.5f;
 
 float brew_time = 15.0f;
 float eat_time = 15.0f;
 
 float score = 0;
+
+// TEXTURES
+Texture bean;
+
 
 entt::registry registry;
 entt::entity player;
@@ -39,6 +45,11 @@ std::map<std::string, int> price =
 };
 
 std::string drinks[] = {"water", "espresso"};
+
+void init_textures()
+{
+    bean = ResourceManager::GetInstance()->GetTexture("bean.png");
+}
 
 void init_entities()
 {
@@ -306,6 +317,11 @@ void read_player_input()
                 {
                     IngredientComponent& ingredient = registry.get<IngredientComponent>(interactor.hot_item);
                     registry.emplace<IngredientComponent>(new_entity, ingredient.name);
+
+                    registry.emplace<SpriteComponent>(new_entity, bean,
+                                                        std::vector<Rectangle>{
+                                                            {0,0,16,16}
+                                                        }, 0);
 
                     std::cout << "Got " << ingredient.name << "\n";
                 }
@@ -862,6 +878,24 @@ void draw_level()
         // if it is not an obstacle and it is not being held
         if (!square && (!holdable || !holdable->isHeld))
         {
+            SpriteComponent* sprite = registry.try_get<SpriteComponent>(entity);
+            if (sprite)
+            {
+                Color color;
+                if (item.isHot) color = GRAY;
+                else color = WHITE;
+
+                Rectangle rec = sprite->frames[sprite->frame_number];
+
+                DrawTexturePro(sprite->sprite_sheet, sprite->frames[sprite->frame_number],
+                                {p.position.x, p.position.y, int(item_radius), int(item_radius)},
+                                {0, 0}, 0.0f, color);
+
+                sprite->frame_number = (sprite->frame_number + 1) & sprite->frames.size();
+
+                continue;
+            }
+
             Color color;
             if (item.isHot) color = YELLOW;
             else color = WHITE;
