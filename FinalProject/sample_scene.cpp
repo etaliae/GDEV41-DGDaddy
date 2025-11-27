@@ -4,7 +4,7 @@
 #include "all_scenes.hpp"
 
 int main() {
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Scene and Resource Management");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Random Cafe");
 
     SceneManager scene_manager;
 

@@ -19,6 +19,7 @@
 
 #include "scene_manager.hpp"
 #include "ui.hpp"
+#include "game_functions.hpp"
 
 struct UiLibrary uiLibrary;
 
@@ -109,14 +110,17 @@ public:
 class GameScene : public Scene {
     Texture pause, raylib_logo;
     Vector2 logo_position;
-    float move_dir_x = 1;
-    float move_dir_y = 1;
+    float accumulator;
 
 public:
     void Begin() override {
         pause = ResourceManager::GetInstance()->GetTexture("pause.png");
         raylib_logo = ResourceManager::GetInstance()->GetTexture("Raylib_logo.png");
-        logo_position = {300, 200};
+        logo_position = {50, 50};
+
+        SetTargetFPS(FPS);
+        init_entities();
+        accumulator = 0;
     }   
 
     void End() override {}
@@ -124,14 +128,20 @@ public:
     void Update() override {
         float delta_time = GetFrameTime();
 
-        logo_position.x += 100 * delta_time * move_dir_x;
-        logo_position.y += 100 * delta_time * move_dir_y;
+        read_player_input();
 
-        if (logo_position.x + 200 >= 800 || logo_position.x <= 0) {
-            move_dir_x *= -1;
-        }
-        if (logo_position.y + 200 >= 600 || logo_position.y <= 0) {
-            move_dir_y *= -1;
+        // Physics Step
+        accumulator += delta_time;
+        while(accumulator >= TIMESTEP)
+        {
+            update_customers();
+            affect_velocities();
+            move_entities();
+            handle_collisions();
+            get_hot_items();
+            update_timers();
+
+            accumulator -= TIMESTEP;
         }
 
         if (uiLibrary.ButtonIcon(0, {770, 30}, pause))
@@ -144,7 +154,8 @@ public:
     }
 
     void Draw() override {
-        DrawText("Orders: X/Y", 300, 30, 30, BLACK);
+        draw_level();
+
         // DrawText(TextFormat("Orders: %04i", balls.size()), 20, 20, 20, WHITE);
         DrawTexturePro(raylib_logo, {0, 0, 256, 256}, {logo_position.x, logo_position.y, 200, 200}, {0, 0}, 0.0f, WHITE);
     }
