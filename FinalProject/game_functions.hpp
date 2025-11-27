@@ -24,6 +24,9 @@ float score = 0;
 
 // TEXTURES
 Texture bean;
+Texture hot_coffee;
+Texture coffee_tools;
+Texture iced_coffee;
 
 
 entt::registry registry;
@@ -49,6 +52,9 @@ std::string drinks[] = {"water", "espresso"};
 void init_textures()
 {
     bean = ResourceManager::GetInstance()->GetTexture("bean.png");
+    hot_coffee = ResourceManager::GetInstance()->GetTexture("hot_coffee.png");
+    iced_coffee = ResourceManager::GetInstance()->GetTexture("iced_coffe.png");
+    coffee_tools = ResourceManager::GetInstance()->GetTexture("coffee_tools.png");
 }
 
 void init_entities()
@@ -310,6 +316,11 @@ void read_player_input()
                 if (stack->type == "cup")
                 {
                     registry.emplace<DrinkComponent>(new_entity, "empty");
+
+                    registry.emplace<SpriteComponent>(new_entity, hot_coffee,
+                                                        std::vector<Rectangle>{
+                                                            {112,0,128,16}
+                                                        }, 0);
 
                     std::cout << "Got empty cup\n"; 
                 }
@@ -781,6 +792,10 @@ void update_timers()
                     registry.emplace<MoneyComponent>(payment, price[customer->order] * (1.0f + customer->patience / 100.0f));
                     registry.emplace<PlaceableComponent>(payment, customer->table);
 
+                    registry.emplace<SpriteComponent>(payment, coffee_tools,
+                                                        std::vector<Rectangle>{
+                                                            {32,0,16,16}
+                                                        }, 0);
                     // destroy drink
                     registry.destroy(customer->drink);
 
