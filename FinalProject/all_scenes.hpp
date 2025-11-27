@@ -28,7 +28,7 @@ class TitleScene : public Scene {
 
 public:
     void Begin() override {
-        raylib_logo = ResourceManager::GetInstance()->GetTexture("Raylib_logo.png");
+        raylib_logo = ResourceManager::GetInstance()->GetTexture("bean.png");
     }
 
     void End() override {}
@@ -46,7 +46,14 @@ public:
                 GetSceneManager()->SwitchScene(1);
             }
         }
-        if (uiLibrary.Button(1, "Leaderboard"))
+        if (uiLibrary.Button(1, "Settings"))
+        {
+            std::cout << "Hello!" << std::endl;
+            if (GetSceneManager() != nullptr) {
+                GetSceneManager()->SwitchScene(2);
+            }
+        }
+        if (uiLibrary.Button(2, "Leaderboard"))
         {
             std::cout << "Hi!" << std::endl;
             if (GetSceneManager() != nullptr) {
@@ -56,8 +63,40 @@ public:
     }
 
     void Draw() override {
-        DrawTexturePro(raylib_logo, {0, 0, 256, 256}, {300, 200, 200, 200}, {0, 0}, 0.0f, WHITE);
-        DrawText("Press ENTER", 300, 425, 30, BLACK);
+        DrawTexturePro(raylib_logo, {0, 0, 16, 16}, {250, 250, 300, 300}, {0, 0}, 0.0f, WHITE);
+        DrawText("R@Nd0M\n  cafe!", 290, 350, 60, WHITE);
+    }
+};
+
+class SettingsScene : public Scene {
+public:
+    bool play_music = true;
+
+    void Begin() override {}
+
+    void End() override {}
+
+    void Update() override {
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            if (GetSceneManager() != nullptr) {
+                GetSceneManager()->SwitchScene(0);
+            }
+        }
+        if (uiLibrary.Button(0, "Toggle Audio", 100.0f))
+        {
+            play_music = !play_music;
+        }
+        if (uiLibrary.Button(1, "Back to Start", 100.0f))
+        {
+            std::cout << "Hi!" << std::endl;
+            if (GetSceneManager() != nullptr) {
+                GetSceneManager()->SwitchScene(0);
+            }
+        }
+    }
+
+    void Draw() override {
+        DrawText("Settings", 330, 30, 30, BLACK);
     }
 };
 

@@ -6,6 +6,8 @@
 int main() {
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Random Cafe");
 
+    InitAudioDevice();
+
     SceneManager scene_manager;
 
     TitleScene title_scene;
@@ -13,6 +15,9 @@ int main() {
 
     GameScene game_scene;
     game_scene.SetSceneManager(&scene_manager);
+
+    SettingsScene settings_scene;
+    settings_scene.SetSceneManager(&scene_manager);
 
     LeaderboardScene leaderboard_scene;
     leaderboard_scene.SetSceneManager(&scene_manager);
@@ -31,6 +36,7 @@ int main() {
 
     scene_manager.RegisterScene(&title_scene, 0);
     scene_manager.RegisterScene(&game_scene, 1);
+    scene_manager.RegisterScene(&settings_scene, 2);
     scene_manager.RegisterScene(&leaderboard_scene, 3);
     scene_manager.RegisterScene(&pause_scene, 4);
     scene_manager.RegisterScene(&day_end_scene, 5);
@@ -39,8 +45,15 @@ int main() {
 
     scene_manager.SwitchScene(0);
 
+    Music main = LoadMusicStream("main.mp3");
+
+    float time_played = 0.0f;
+    bool play_music;
+
     while(!WindowShouldClose()) {
-        Scene* active_scene = scene_manager.GetActiveScene();
+       Scene* active_scene = scene_manager.GetActiveScene();
+
+        play_music = settings_scene.play_music;
 
         BeginDrawing();
         ClearBackground(Color{221, 161, 94, 255});
@@ -50,6 +63,29 @@ int main() {
             active_scene->Draw();
         }
 
+        if (play_music) {
+            if (!IsMusicStreamPlaying(main)) {
+                PlayMusicStream(main);
+            }
+        }
+        else {
+            if (IsMusicStreamPlaying(main)) {
+                StopMusicStream(main);
+            }
+        }
+
+        if (IsMusicStreamPlaying(main)){
+            UpdateMusicStream(main);
+        }
+
+        time_played = GetMusicTimePlayed(main)/GetMusicTimeLength(main);
+
+        if (time_played > 1.0f){
+            time_played = 0.0f;
+            StopMusicStream(main);
+            settings_scene.play_music = false;
+        } 
+
         EndDrawing();
     }
 
@@ -58,8 +94,13 @@ int main() {
         active_scene->End();
     }
 
-    ResourceManager::GetInstance()->UnloadAllTextures();
+    UnloadMusicStream(main);
 
+    ResourceManager::GetInstance()->UnloadAllTextures();
+    
+    CloseAudioDevice();
+    
     CloseWindow();
+    
     return 0;
 }
