@@ -17,7 +17,7 @@ const float radius = 16.0f;
 const float item_radius = 12.0f;
 const float interact_range = GRID_SIZE * 1.5f;
 const int fail_threshold = 3;
-const float time_per_day = 30.0f;  // 3 minutes
+const float time_per_day = 180.0f;
 const float head_start_time = 15.0f;
 
 float brew_time = 15.0f;
@@ -161,12 +161,76 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
 
     entt::entity dining_table = registry.create();
     registry.emplace<SquareComponent>(dining_table, GRID_SIZE / 2.0f);
-    registry.emplace<PositionComponent>(dining_table, Vector2{8.5f * GRID_SIZE, 2.5f * GRID_SIZE});
+    registry.emplace<PositionComponent>(dining_table, Vector2{7.5f * GRID_SIZE, 3.5f * GRID_SIZE});
     registry.emplace<PhysicsComponent>(dining_table, 1.0f, 0.0f);
     registry.emplace<InteractableComponent>(dining_table, true, false);
     registry.emplace<TableComponent>(dining_table, false);
     registry.emplace<DiningTableComponent>(dining_table, chair1);
     registry.emplace<ColorComponent>(dining_table, BROWN);
+
+    entt::entity chair2 = registry.create();
+    registry.emplace<SquareComponent>(chair2, GRID_SIZE / 4.0f);
+    registry.emplace<PositionComponent>(chair2, Vector2{5.5f * GRID_SIZE, 2.5f * GRID_SIZE});
+    registry.emplace<PhysicsComponent>(chair2, 1.0f, 0.0f);
+    registry.emplace<ChairComponent>(chair2, entt::null);
+    registry.emplace<ColorComponent>(chair2, BEIGE);
+
+    entt::entity dining_table2 = registry.create();
+    registry.emplace<SquareComponent>(dining_table2, GRID_SIZE / 2.0f);
+    registry.emplace<PositionComponent>(dining_table2, Vector2{5.5f * GRID_SIZE, 3.5f * GRID_SIZE});
+    registry.emplace<PhysicsComponent>(dining_table2, 1.0f, 0.0f);
+    registry.emplace<InteractableComponent>(dining_table2, true, false);
+    registry.emplace<TableComponent>(dining_table2, false);
+    registry.emplace<DiningTableComponent>(dining_table2, chair2);
+    registry.emplace<ColorComponent>(dining_table2, BROWN);
+
+    entt::entity chair3 = registry.create();
+    registry.emplace<SquareComponent>(chair3, GRID_SIZE / 4.0f);
+    registry.emplace<PositionComponent>(chair3, Vector2{3.5f * GRID_SIZE, 2.5f * GRID_SIZE});
+    registry.emplace<PhysicsComponent>(chair3, 1.0f, 0.0f);
+    registry.emplace<ChairComponent>(chair3, entt::null);
+    registry.emplace<ColorComponent>(chair3, BEIGE);
+
+    entt::entity dining_table3 = registry.create();
+    registry.emplace<SquareComponent>(dining_table3, GRID_SIZE / 2.0f);
+    registry.emplace<PositionComponent>(dining_table3, Vector2{3.5f * GRID_SIZE, 3.5f * GRID_SIZE});
+    registry.emplace<PhysicsComponent>(dining_table3, 1.0f, 0.0f);
+    registry.emplace<InteractableComponent>(dining_table3, true, false);
+    registry.emplace<TableComponent>(dining_table3, false);
+    registry.emplace<DiningTableComponent>(dining_table3, chair3);
+    registry.emplace<ColorComponent>(dining_table3, BROWN);
+
+    entt::entity chair4 = registry.create();
+    registry.emplace<SquareComponent>(chair4, GRID_SIZE / 4.0f);
+    registry.emplace<PositionComponent>(chair4, Vector2{9.5f * GRID_SIZE, 2.5f * GRID_SIZE});
+    registry.emplace<PhysicsComponent>(chair4, 1.0f, 0.0f);
+    registry.emplace<ChairComponent>(chair4, entt::null);
+    registry.emplace<ColorComponent>(chair4, BEIGE);
+
+    entt::entity dining_table4 = registry.create();
+    registry.emplace<SquareComponent>(dining_table4, GRID_SIZE / 2.0f);
+    registry.emplace<PositionComponent>(dining_table4, Vector2{9.5f * GRID_SIZE, 3.5f * GRID_SIZE});
+    registry.emplace<PhysicsComponent>(dining_table4, 1.0f, 0.0f);
+    registry.emplace<InteractableComponent>(dining_table4, true, false);
+    registry.emplace<TableComponent>(dining_table4, false);
+    registry.emplace<DiningTableComponent>(dining_table4, chair4);
+    registry.emplace<ColorComponent>(dining_table4, BROWN);
+
+    entt::entity chair5 = registry.create();
+    registry.emplace<SquareComponent>(chair5, GRID_SIZE / 4.0f);
+    registry.emplace<PositionComponent>(chair5, Vector2{11.5f * GRID_SIZE, 2.5f * GRID_SIZE});
+    registry.emplace<PhysicsComponent>(chair5, 1.0f, 0.0f);
+    registry.emplace<ChairComponent>(chair5, entt::null);
+    registry.emplace<ColorComponent>(chair5, BEIGE);
+
+    entt::entity dining_table5 = registry.create();
+    registry.emplace<SquareComponent>(dining_table5, GRID_SIZE / 2.0f);
+    registry.emplace<PositionComponent>(dining_table5, Vector2{11.5f * GRID_SIZE, 3.5f * GRID_SIZE});
+    registry.emplace<PhysicsComponent>(dining_table5, 1.0f, 0.0f);
+    registry.emplace<InteractableComponent>(dining_table5, true, false);
+    registry.emplace<TableComponent>(dining_table5, false);
+    registry.emplace<DiningTableComponent>(dining_table5, chair5);
+    registry.emplace<ColorComponent>(dining_table5, BROWN);
 
     // item
     entt::entity stack_of_cups = registry.create();
@@ -227,18 +291,18 @@ void read_player_input(entt::registry& registry, entt::entity& player)
     //MOVEMENT
     Vector2 forces = Vector2Zero(); // every frame set the forces to a 0 vector
 
-    // Adds forces with the magnitude of 100 in the direction given by WASD inputs
+    // Adds forces with the magnitude of 200 in the direction given by WASD inputs
     if(IsKeyDown(KEY_W)) {
-        forces = Vector2Add(forces, {0, -100});
+        forces = Vector2Add(forces, {0, -200});
     }
     if(IsKeyDown(KEY_A)) {
-        forces = Vector2Add(forces, {-100, 0});
+        forces = Vector2Add(forces, {-200, 0});
     }
     if(IsKeyDown(KEY_S)) {
-        forces = Vector2Add(forces, {0, 100});
+        forces = Vector2Add(forces, {0, 200});
     }
     if(IsKeyDown(KEY_D)) {
-        forces = Vector2Add(forces, {100, 0});
+        forces = Vector2Add(forces, {200, 0});
     }
 
     AccelerationComponent& a = registry.get<AccelerationComponent>(player);
@@ -1130,9 +1194,13 @@ void draw_level(entt::registry& registry, entt::entity& player)
         PositionComponent& pos = registry.get<PositionComponent>(entity);
         CircleComponent& rad = registry.get<CircleComponent>(entity);
         InteractableComponent& i = registry.get<InteractableComponent>(entity);
+        CustomerComponent& c = registry.get<CustomerComponent>(entity);
 
         if (i.isHot) DrawCircleV(pos.position, rad.radius, PURPLE);
         else DrawCircleV(pos.position, rad.radius, DARKPURPLE);
+
+        if (c.state == "Ordering")
+            DrawText(TextFormat("%s", c.order.c_str()), pos.position.x - 10, pos.position.y - 20, 20, BLACK);
     }
 
     // player

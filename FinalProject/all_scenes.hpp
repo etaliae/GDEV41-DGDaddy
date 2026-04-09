@@ -167,6 +167,9 @@ public:
         accumulator = 0;
         day_score = 0;
         button_name = "";
+
+        customers_not_served = 0;
+        customers_so_far = 0;
     }   
 
     void End() override {}
