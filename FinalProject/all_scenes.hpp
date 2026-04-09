@@ -108,6 +108,8 @@ class LeaderboardScene : public Scene {
 public:
     void Begin() override {
         std::ifstream in("leaderboard.txt");
+        top3 = "";
+        leaderboard = "";
 
         int counter = 1;
 
@@ -414,7 +416,74 @@ public:
         }
 
         if (IsKeyPressed(KEY_ENTER)) {
-            
+            std::ifstream in("leaderboard.txt");
+
+            std::string line;
+            std::string new_leaderboard = "";
+
+            int offset = 0;
+
+            while (getline (in, line)) {
+                // rank
+                int index0 = line.find(' ');
+                int rank = std::stoi(line.substr(0, index0-1));
+
+                if (offset == 0) {
+                    // name
+                    std::string sub = line.substr(index0 + 1);
+                    int index1 = sub.find(' ');
+
+                    // score
+                    std::string old_score = sub.substr(index1 + 1);
+
+                    try {
+                        int old_score_value = std::stoi(old_score);
+
+                        if (score > old_score_value) {
+                            std::string new_score = "";
+                            if (score < 10000)
+                                new_score += "0";
+                            if (score < 1000)
+                                new_score += "0";
+                            if (score < 100)
+                                new_score += "0";
+                            if (score < 10)
+                                new_score += "0";
+
+                            new_score += std::to_string(int(score));
+
+                            new_leaderboard += std::to_string(rank) + ". " + name + " " + new_score + "\n";
+                            offset = 1;
+                        }
+                    }
+                    catch (...) {
+                        std::string new_score = "";
+                        if (score < 10000)
+                            new_score += "0";
+                        if (score < 1000)
+                            new_score += "0";
+                        if (score < 100)
+                            new_score += "0";
+                        if (score < 10)
+                            new_score += "0";
+
+                        new_score += std::to_string(int(score));
+
+                        new_leaderboard += std::to_string(rank) + ". " + name + " " + new_score + "\n";
+                        offset = 1; 
+                    }
+                }
+                else if (rank + offset > 10)
+                    break;
+
+                new_leaderboard += std::to_string(rank+offset) + '.' + line.substr(index0) + "\n";
+            }
+
+            in.close();
+
+            std::ofstream file("leaderboard.txt");
+            file << new_leaderboard;
+            file.close();
 
             if (GetSceneManager() != nullptr) {
                 GetSceneManager()->SwitchScene(3);
