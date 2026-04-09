@@ -13,6 +13,11 @@ struct PositionComponent
 	Vector2 position;		// center
 };
 
+struct ColorComponent
+{
+	Color color;
+};
+
 struct SpriteComponent
 {
 	Texture sprite_sheet;

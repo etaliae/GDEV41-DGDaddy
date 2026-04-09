@@ -87,6 +87,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<DirectionComponent>(player, Vector2{0.0f, 1.0f});
     registry.emplace<InteractorComponent>(player, entt::null);
     registry.emplace<HolderComponent>(player, entt::null);
+    registry.emplace<ColorComponent>(player, BLUE);
 
     // spawn timer for customers
     spawn_timer = registry.create();
@@ -100,6 +101,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<PhysicsComponent>(counter1, 1.0f, 0.0f);
     registry.emplace<InteractableComponent>(counter1, false, false);
     registry.emplace<TableComponent>(counter1, true);
+    registry.emplace<ColorComponent>(counter1, DARKBROWN);
 
     entt::entity counter2 = registry.create();
     registry.emplace<SquareComponent>(counter2, GRID_SIZE / 2.0f);
@@ -107,6 +109,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<PhysicsComponent>(counter2, 1.0f, 0.0f);
     registry.emplace<InteractableComponent>(counter2, false, false);
     registry.emplace<TableComponent>(counter2, true);
+    registry.emplace<ColorComponent>(counter2, DARKBROWN);
 
     entt::entity counter3 = registry.create();
     registry.emplace<SquareComponent>(counter3, GRID_SIZE / 2.0f);
@@ -114,6 +117,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<PhysicsComponent>(counter3, 1.0f, 0.0f);
     registry.emplace<InteractableComponent>(counter3, false, false);
     registry.emplace<TableComponent>(counter3, true);
+    registry.emplace<ColorComponent>(counter3, DARKBROWN);
 
     entt::entity counter4 = registry.create();
     registry.emplace<SquareComponent>(counter4, GRID_SIZE / 2.0f);
@@ -121,6 +125,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<PhysicsComponent>(counter4, 1.0f, 0.0f);
     registry.emplace<InteractableComponent>(counter4, false, false);
     registry.emplace<TableComponent>(counter4, true);
+    registry.emplace<ColorComponent>(counter4, DARKBROWN);
 
     entt::entity counter5 = registry.create();
     registry.emplace<SquareComponent>(counter5, GRID_SIZE / 2.0f);
@@ -128,6 +133,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<PhysicsComponent>(counter5, 1.0f, 0.0f);
     registry.emplace<InteractableComponent>(counter5, true, false);
     registry.emplace<TableComponent>(counter5, true);
+    registry.emplace<ColorComponent>(counter5, DARKBROWN);
 
     entt::entity counter6 = registry.create();
     registry.emplace<SquareComponent>(counter6, GRID_SIZE / 2.0f);
@@ -135,6 +141,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<PhysicsComponent>(counter6, 1.0f, 0.0f);
     registry.emplace<InteractableComponent>(counter6, false, false);
     registry.emplace<TableComponent>(counter6, true);
+    registry.emplace<ColorComponent>(counter6, DARKBROWN);
 
     entt::entity counter7 = registry.create();
     registry.emplace<SquareComponent>(counter7, GRID_SIZE / 2.0f);
@@ -142,6 +149,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<PhysicsComponent>(counter7, 1.0f, 0.0f);
     registry.emplace<InteractableComponent>(counter7, false, false);
     registry.emplace<TableComponent>(counter7, true);
+    registry.emplace<ColorComponent>(counter7, DARKBROWN);
 
     // customer-side obstacles
     entt::entity chair1 = registry.create();
@@ -149,6 +157,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<PositionComponent>(chair1, Vector2{7.5f * GRID_SIZE, 2.5f * GRID_SIZE});
     registry.emplace<PhysicsComponent>(chair1, 1.0f, 0.0f);
     registry.emplace<ChairComponent>(chair1, entt::null);
+    registry.emplace<ColorComponent>(chair1, BEIGE);
 
     entt::entity dining_table = registry.create();
     registry.emplace<SquareComponent>(dining_table, GRID_SIZE / 2.0f);
@@ -157,12 +166,14 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<InteractableComponent>(dining_table, true, false);
     registry.emplace<TableComponent>(dining_table, false);
     registry.emplace<DiningTableComponent>(dining_table, chair1);
+    registry.emplace<ColorComponent>(dining_table, BROWN);
 
     // item
     entt::entity stack_of_cups = registry.create();
     registry.emplace<PositionComponent>(stack_of_cups, Vector2{4.5f * GRID_SIZE, 6.5f * GRID_SIZE});
     registry.emplace<InteractableComponent>(stack_of_cups, true, false);
     registry.emplace<StackComponent>(stack_of_cups, "cup");
+    registry.emplace<ColorComponent>(stack_of_cups, ORANGE);
 
     entt::entity coffee_machine = registry.create();
     registry.emplace<PositionComponent>(coffee_machine, Vector2{5.5f * GRID_SIZE, 6.5f * GRID_SIZE});
@@ -170,12 +181,14 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<TableComponent>(coffee_machine, false);
     registry.emplace<CoffeeMachineComponent>(coffee_machine, false, false, entt::null);
     registry.emplace<TimerComponent>(coffee_machine, 0.0f);
+    registry.emplace<ColorComponent>(coffee_machine, BLACK);
 
     entt::entity coffee_bean_container = registry.create();
     registry.emplace<PositionComponent>(coffee_bean_container, Vector2{6.5f * GRID_SIZE, 6.5f * GRID_SIZE});
     registry.emplace<InteractableComponent>(coffee_bean_container, true, false);
     registry.emplace<StackComponent>(coffee_bean_container, "ingredient");
     registry.emplace<IngredientComponent>(coffee_bean_container, "coffee bean", false);
+    registry.emplace<ColorComponent>(coffee_bean_container, PINK);
 
     entt::entity water_pitcher = registry.create();
     registry.emplace<PositionComponent>(water_pitcher, Vector2{7.5f * GRID_SIZE, 6.5f * GRID_SIZE});
@@ -183,6 +196,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<HoldableComponent>(water_pitcher, false);
     registry.emplace<PlaceableComponent>(water_pitcher, counter4);
     registry.emplace<IngredientComponent>(water_pitcher, "water", true);
+    registry.emplace<ColorComponent>(water_pitcher, SKYBLUE);
 
     entt::entity kettle = registry.create();
     registry.emplace<PositionComponent>(kettle, Vector2{10.5f * GRID_SIZE, 6.5f * GRID_SIZE});
@@ -190,6 +204,8 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<HoldableComponent>(kettle, false);
     registry.emplace<PlaceableComponent>(kettle, counter6);
     registry.emplace<IngredientComponent>(kettle, "hot water", true);
+    registry.emplace<ColorComponent>(kettle, RED);
+
 
     entt::entity milk_jug = registry.create();
     registry.emplace<PositionComponent>(milk_jug, Vector2{11.5f * GRID_SIZE, 6.5f * GRID_SIZE});
@@ -197,6 +213,7 @@ void init_entities(entt::registry& registry, entt::entity& player, entt::entity&
     registry.emplace<HoldableComponent>(milk_jug, false);
     registry.emplace<PlaceableComponent>(milk_jug, counter7);
     registry.emplace<IngredientComponent>(milk_jug, "milk", true);
+    registry.emplace<ColorComponent>(milk_jug, WHITE);
 }
 
 void reserve_memory()
@@ -332,8 +349,10 @@ void read_player_input(entt::registry& registry, entt::entity& player)
 
                     registry.emplace<SpriteComponent>(new_entity, hot_coffee,
                                                         std::vector<Rectangle>{
-                                                            {112,0,128,16}
+                                                            {112,0,16,16}
                                                         }, 0);
+
+                    registry.emplace<ColorComponent>(new_entity, MAROON);
 
                     std::cout << "Got empty cup\n"; 
                 }
@@ -347,6 +366,9 @@ void read_player_input(entt::registry& registry, entt::entity& player)
                                                             {0,0,16,16}
                                                         }, 0);
 
+                    if (ingredient.name == "coffee bean")
+                        registry.emplace<ColorComponent>(new_entity, YELLOW);
+                    
                     std::cout << "Got " << ingredient.name << "\n";
                 }
 
@@ -1011,10 +1033,11 @@ void draw_level(entt::registry& registry, entt::entity& player)
         PositionComponent& p = registry.get<PositionComponent>(entity);
         InteractableComponent& item = registry.get<InteractableComponent>(entity);
         SquareComponent& square = registry.get<SquareComponent>(entity);
+        ColorComponent& clr = registry.get<ColorComponent>(entity);
 
         Color color;
-        if (item.isHot) color = BROWN;
-        else color = DARKBROWN;
+        if (item.isHot) color = BLUE;
+        else color = clr.color;
 
         DrawRectangleV(Vector2Subtract(p.position, {square.half_size, square.half_size}),
                         {square.half_size * 2.0f, square.half_size * 2.0f}, color);
@@ -1038,7 +1061,7 @@ void draw_level(entt::registry& registry, entt::entity& player)
         SquareComponent& square = registry.get<SquareComponent>(entity);
 
         DrawRectangleV(Vector2Subtract(p.position, {square.half_size, square.half_size}),
-                        {square.half_size * 2.0f, square.half_size * 2.0f}, BEIGE);
+                        {square.half_size * 2.0f, square.half_size * 2.0f}, BLUE);
     }
 
     auto machine = registry.view<CoffeeMachineComponent>();
@@ -1047,9 +1070,12 @@ void draw_level(entt::registry& registry, entt::entity& player)
         PositionComponent& p = registry.get<PositionComponent>(entity);
         InteractableComponent& i = registry.get<InteractableComponent>(entity);
 
+        
+        ColorComponent& clr = registry.get<ColorComponent>(entity);
+
         Color color;
-        if (i.isHot) color = GRAY;
-        else color = BLACK;
+        if (i.isHot) color = BLUE;
+        else color = clr.color;
 
         DrawRectangleV(Vector2Subtract(p.position, {GRID_SIZE * 0.375f, GRID_SIZE * 0.375f}),
                         {GRID_SIZE * 0.75f, GRID_SIZE * 0.75f}, color);
@@ -1077,26 +1103,23 @@ void draw_level(entt::registry& registry, entt::entity& player)
             SpriteComponent* sprite = registry.try_get<SpriteComponent>(entity);
             if (sprite)
             {
-                Color color;
-                if (item.isHot) color = GRAY;
-                else color = WHITE;
-
                 Rectangle rec = sprite->frames[sprite->frame_number];
 
                 DrawTexturePro(sprite->sprite_sheet, sprite->frames[sprite->frame_number],
                                 {p.position.x, p.position.y, int(item_radius), int(item_radius)},
-                                {0, 0}, 0.0f, color);
+                                {0, 0}, 0.0f, WHITE);
 
                 sprite->frame_number = (sprite->frame_number + 1) & sprite->frames.size();
 
                 continue;
             }
 
-            Color color;
-            if (item.isHot) color = YELLOW;
-            else color = WHITE;
+            
+            ColorComponent& clr = registry.get<ColorComponent>(entity);
 
-            DrawCircleV(p.position, radius / 2.0f, color);
+            Color color;
+            if (item.isHot) DrawCircleV(p.position, radius / 2.0f, BLUE);
+            else DrawCircleV(p.position, radius / 2.0f, clr.color);
         }
     }
 
@@ -1121,8 +1144,10 @@ void draw_level(entt::registry& registry, entt::entity& player)
     HolderComponent& holder = registry.get<HolderComponent>(player);
     if (holder.held_item != entt::null)
     {
+        ColorComponent& clr = registry.get<ColorComponent>(holder.held_item);
+
         DrawCircleV(Vector2Add(pos.position, {rad.radius / 1.5f, rad.radius / 1.5f}),
-                    rad.radius / 2.0f, WHITE);
+                    rad.radius / 2.0f, clr.color);
     }
 
     // score
